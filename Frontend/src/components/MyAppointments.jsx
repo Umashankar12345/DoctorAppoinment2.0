@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import Navbar from './Navbar';
 import '../styles/MyAppointments.css';
 import Footer from './Footer';
 
 const MyAppointments = () => {
   const navigate = useNavigate();
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] = useState({ upcoming: [], history: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -26,7 +27,7 @@ const MyAppointments = () => {
           },
         };
 
-        const response = await axios.get('http://localhost:5000/api/appointments/patient-dashboard', config);
+        const response = await axios.get(`${API_BASE_URL}/api/appointments/patient-dashboard`, config);
         // The new endpoint returns { upcoming, history }
         setAppointments(response.data);
       } catch (err) {
@@ -40,9 +41,10 @@ const MyAppointments = () => {
     fetchAppointments();
   }, [navigate]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50">Loading...</div>;
 
-  const { upcoming, history } = appointments;
+  const upcoming = appointments?.upcoming || [];
+  const history = appointments?.history || [];
 
   const renderAppointmentCard = (appt) => (
     <div key={appt._id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hover:shadow-md transition-shadow">

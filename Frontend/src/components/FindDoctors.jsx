@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = API_BASE_URL;
 
 // Specialization icons and colors for the grid
 const SPEC_META = {
@@ -158,13 +159,15 @@ const FindDoctors = () => {
             const res = await axios.get(`${API_BASE}/api/doctors/search?${params.toString()}`);
 
             // The API now returns { doctors, page, pages, total }
-            if (res.data.doctors) {
+            if (res.data && res.data.doctors) {
                 setDoctors(res.data.doctors);
-                setTotalPages(res.data.pages);
-                setTotalDoctorsCount(res.data.total);
+                setTotalPages(res.data.pages || 1);
+                setTotalDoctorsCount(res.data.total || 0);
                 if (specOverride) setPage(1);
+            } else if (Array.isArray(res.data)) {
+                setDoctors(res.data);
             } else {
-                setDoctors(res.data); // Fallback for old API behavior if any
+                setDoctors([]);
             }
         } catch (err) {
             setError('Failed to fetch doctors.');

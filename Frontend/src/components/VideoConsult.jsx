@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = API_BASE_URL;
 
 function VideoConsult() {
     const navigate = useNavigate();
@@ -18,7 +19,7 @@ function VideoConsult() {
         const fetchVideoDoctors = async () => {
             try {
                 const res = await axios.get(`${API_BASE}/api/doctors/search?consultationMode=video&limit=50`);
-                const doctorList = res.data.doctors || res.data;
+                const doctorList = Array.isArray(res.data.doctors) ? res.data.doctors : (Array.isArray(res.data) ? res.data : []);
                 setDoctors(doctorList);
                 setFilteredDoctors(doctorList);
 

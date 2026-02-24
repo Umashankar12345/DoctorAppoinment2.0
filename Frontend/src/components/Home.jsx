@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import '../styles/Home.css';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = API_BASE_URL;
 
 const Home = () => {
     const navigate = useNavigate();
@@ -16,8 +17,11 @@ const Home = () => {
 
     useEffect(() => {
         axios.get(`${API_BASE}/api/doctors/top?limit=4`)
-            .then(res => setTopDoctors(res.data))
-            .catch(err => console.error('Failed to load top doctors', err));
+            .then(res => setTopDoctors(Array.isArray(res.data) ? res.data : (res.data.doctors || [])))
+            .catch(err => {
+                console.error('Failed to load top doctors', err);
+                setTopDoctors([]);
+            });
 
         axios.get(`${API_BASE}/api/doctors/stats`)
             .then(res => setStats(res.data))
@@ -127,7 +131,7 @@ const Home = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {topDoctors.map((doc, idx) => (
+                    {(topDoctors || []).map((doc, idx) => (
                         <div key={doc._id || idx} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 group">
                             <div className="h-48 bg-gradient-to-br from-blue-50 to-indigo-50 relative overflow-hidden flex items-center justify-center">
                                 <img

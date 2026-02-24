@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import Navbar from './Navbar';
 import { Calendar, Clock, User, Activity, Mail, Phone } from 'lucide-react';
 
@@ -38,7 +39,7 @@ function DoctorDashboard() {
 
             console.log('Fetching doctor dashboard...');
 
-            const response = await axios.get('http://localhost:5000/api/doctors/dashboard', {
+            const response = await axios.get(`${API_BASE_URL}/api/doctors/dashboard`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -78,7 +79,7 @@ function DoctorDashboard() {
                 },
             };
 
-            await axios.put(`http://localhost:5000/api/appointments/status-update/${id}`, { status }, config);
+            await axios.put(`${API_BASE_URL}/api/appointments/status-update/${id}`, { status }, config);
             fetchDoctorDashboard();
         } catch (error) {
             console.error('Error updating status:', error);

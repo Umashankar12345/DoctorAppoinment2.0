@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import Navbar from './Navbar';
 import '../styles/Appointment.css';
 import Footer from './Footer';
@@ -50,7 +51,7 @@ const Appointment = () => {
         timeSlot: appointmentData.timeSlot,
       };
 
-      await axios.post('http://localhost:5000/api/appointments', newAppointment, config);
+      await axios.post(`${API_BASE_URL}/api/appointments`, newAppointment, config);
 
       setSuccess(true);
       setTimeout(() => {
