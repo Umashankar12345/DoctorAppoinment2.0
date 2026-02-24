@@ -1,0 +1,4 @@
+/* Simple styles if tailwind is not enough or for specific overrides */
+.doctor-dashboard {
+  padding: 20px;
+}
