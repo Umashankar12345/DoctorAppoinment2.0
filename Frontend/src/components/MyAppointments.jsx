@@ -29,6 +29,7 @@ const MyAppointments = () => {
 
         const response = await axios.get(`${API_BASE_URL}/api/appointments/patient-dashboard`, config);
         // The new endpoint returns { upcoming, history }
+        console.log("response",response)
         setAppointments(response.data);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to fetch appointments');

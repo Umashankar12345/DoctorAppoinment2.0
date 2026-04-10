@@ -86,11 +86,14 @@ const FindDoctors = () => {
         if (selectedState) params.append('state', selectedState);
         if (selectedDistrict) params.append('district', selectedDistrict);
 
-        axios.get(`${API_BASE}/api/doctors/specializations?${params.toString()}`)
-            .then(res => setSpecializations(res.data))
+        const res = axios.get(`${API_BASE}/api/doctors/specializations?${params.toString()}`)
+        
+            .then(res => {console.log("res",res.data) 
+                setSpecializations(res.data)})
             .catch(err => console.error('Failed to load specializations', err));
+            
     }, [selectedState, selectedDistrict]);
-
+     console.log("uma",specializations)
     // ─── Load Top Doctors on mount ──────────────────────────────
     useEffect(() => {
         axios.get(`${API_BASE}/api/doctors/top?limit=20`)

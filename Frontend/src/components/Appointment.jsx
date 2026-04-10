@@ -50,7 +50,7 @@ const Appointment = () => {
         date: appointmentData.date,
         timeSlot: appointmentData.timeSlot,
       };
-
+        console.log("pop"  );
       await axios.post(`${API_BASE_URL}/api/appointments`, newAppointment, config);
 
       setSuccess(true);

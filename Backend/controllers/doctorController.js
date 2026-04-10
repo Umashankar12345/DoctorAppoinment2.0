@@ -104,9 +104,11 @@ const getSpecializations = async (req, res) => {
         const { state, district } = req.query;
         const query = { role: 'doctor' };
         if (state) query.state = state;
-        if (district) query.district = district;
+        if
+         (district) query.district = district;
 
         const specializations = await User.distinct('specialization', query);
+        console.log("specializations",specializations)
         res.json(specializations.filter(Boolean).sort());
     } catch (error) {
         console.error(error);
