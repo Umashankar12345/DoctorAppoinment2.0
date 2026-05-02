@@ -33,6 +33,10 @@ const appointmentSchema = new mongoose.Schema({
         enum: ['pending', 'confirmed', 'completed', 'cancelled'],
         default: 'pending',
     },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -44,10 +48,10 @@ const appointmentSchema = new mongoose.Schema({
 
 // Prevent double booking for the same doctor, date, and time slot
 // We use a partialFilterExpression so that if an appointment is 'cancelled', 
-// the slot becomes available again for others to book.
+// isActive becomes false, and the slot becomes available again for others to book.
 appointmentSchema.index(
     { doctor: 1, date: 1, timeSlot: 1 },
-    { unique: true, partialFilterExpression: { status: { $ne: 'cancelled' } } }
+    { unique: true, partialFilterExpression: { isActive: true } }
 );
 
 module.exports = mongoose.model('Appointment', appointmentSchema);

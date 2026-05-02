@@ -85,9 +85,15 @@ const updateAppointmentStatus = asyncHandler(async (req, res) => {
         throw new Error('Not authorized to update this appointment');
     }
 
+    // Expecting { status: 'confirmed' | 'cancelled' | 'completed' }
+    const updateData = { ...req.body };
+    if (updateData.status === 'cancelled') {
+        updateData.isActive = false;
+    }
+
     const updatedAppointment = await Appointment.findByIdAndUpdate(
         req.params.id,
-        req.body, // Expecting { status: 'confirmed' | 'cancelled' | 'completed' }
+        updateData,
         { new: true }
     );
 
