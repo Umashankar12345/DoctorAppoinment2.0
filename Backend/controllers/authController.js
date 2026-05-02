@@ -5,7 +5,7 @@ const User = require('../models/userModel');
 
 // ================= REGISTER =================
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password, role, specialization, experience, location, phone, state, district, fees, about } = req.body;
+    const { name, email, password, role, specialization, experience, location, phone, state, district, taluka, village, fees, about, mciNumber } = req.body;
 
     if (!name || !email || !password) {
         res.status(400);
@@ -29,16 +29,25 @@ const registerUser = asyncHandler(async (req, res) => {
     };
 
     if (role === 'doctor') {
-        if (!specialization || experience === undefined || experience === null) {
+        if (!specialization || experience === undefined || experience === null || !mciNumber) {
             res.status(400);
-            throw new Error('Doctor must provide specialization and experience');
+            throw new Error('Doctor must provide specialization, experience, and MCI number');
         }
 
+        const mciExists = await User.findOne({ mciNumber });
+        if (mciExists) {
+            res.status(400);
+            throw new Error('A doctor with this MCI registration number already exists');
+        }
+
+        userData.mciNumber = mciNumber;
         userData.specialization = specialization;
         userData.experience = Number(experience);
         userData.phone = phone || '';
         userData.state = state || '';
         userData.district = district || '';
+        userData.taluka = taluka || '';
+        userData.village = village || '';
         userData.fees = fees ? Number(fees) : 500;
         userData.about = about || '';
         userData.location = location || {

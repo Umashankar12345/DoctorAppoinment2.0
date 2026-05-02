@@ -10,6 +10,11 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Please add an email'],
         unique: true,
     },
+    mciNumber: {
+        type: String,
+        unique: true,
+        sparse: true, // Only unique for doctors who have this field
+    },
     password: {
         type: String,
         required: [true, 'Please add a password'],
@@ -45,6 +50,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    isAvailable: {
+        type: Boolean,
+        default: true,
+    },
     availableSlots: [{
         day: String,
         startTime: String,
@@ -60,6 +69,13 @@ const userSchema = new mongoose.Schema({
         required: function () { return this.role === 'doctor'; },
         index: true
     },
+    taluka: {
+        type: String,
+        index: true
+    },
+    village: {
+        type: String,
+    },
     area: {
         type: String,
     },
@@ -69,6 +85,8 @@ const userSchema = new mongoose.Schema({
     location: { // Structured location for filtering
         state: { type: String },
         district: { type: String },
+        taluka: { type: String },
+        village: { type: String },
         area: { type: String },
         pincode: { type: String }
     },

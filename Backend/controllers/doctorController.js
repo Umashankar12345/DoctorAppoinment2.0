@@ -9,6 +9,8 @@ const searchDoctors = async (req, res) => {
         const {
             state,
             district,
+            taluka,
+            village,
             specialization,
             name,
             language,
@@ -20,7 +22,7 @@ const searchDoctors = async (req, res) => {
             limit = 10
         } = req.query;
 
-        const query = { role: 'doctor' };
+        const query = { role: 'doctor', isAvailable: true };
 
         // Support both old and new location structures
         if (state) {
@@ -41,6 +43,8 @@ const searchDoctors = async (req, res) => {
                 ];
             }
         }
+        if (taluka) query.taluka = taluka;
+        if (village) query.village = village;
 
         if (specialization) query.specialization = { $regex: specialization, $options: 'i' };
         if (name) query.name = { $regex: name, $options: 'i' };
@@ -84,7 +88,7 @@ const searchDoctors = async (req, res) => {
 const getTopDoctors = async (req, res) => {
     try {
         const { limit = 20 } = req.query;
-        const doctors = await User.find({ role: 'doctor' })
+        const doctors = await User.find({ role: 'doctor', isAvailable: true })
             .select('-password')
             .populate('clinic', 'name address type')
             .sort({ rating: -1, experience: -1 })
@@ -101,11 +105,12 @@ const getTopDoctors = async (req, res) => {
 // @access  Public
 const getSpecializations = async (req, res) => {
     try {
-        const { state, district } = req.query;
-        const query = { role: 'doctor' };
+        const { state, district, taluka, village } = req.query;
+        const query = { role: 'doctor', isAvailable: true };
         if (state) query.state = state;
-        if
-         (district) query.district = district;
+        if (district) query.district = district;
+        if (taluka) query.taluka = taluka;
+        if (village) query.village = village;
 
         const specializations = await User.distinct('specialization', query);
         console.log("specializations",specializations)
@@ -129,7 +134,8 @@ const getNearbyDoctors = asyncHandler(async (req, res) => {
 
     const query = {
         role: 'doctor',
-        location: {
+        isAvailable: true,
+        geoPoint: {
             $near: {
                 $geometry: {
                     type: "Point",
