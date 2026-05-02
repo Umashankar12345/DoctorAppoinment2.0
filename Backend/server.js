@@ -42,6 +42,7 @@ const startServer = async () => {
         app.use('/api/doctors', require('./routes/doctorRoutes'));
         app.use('/api/locations', require('./routes/locationRoutes'));
         app.use('/api/clinics', require('./routes/clinicRoutes'));
+        app.use('/api/payment', require('./routes/paymentRoutes'));
 
         app.get('/', (req, res) => {
             res.json({ message: 'Welcome to the Doctor Appointment API !' })

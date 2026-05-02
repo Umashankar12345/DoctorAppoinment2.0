@@ -37,6 +37,24 @@ const appointmentSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'paid', 'refunded'],
+        default: 'pending'
+    },
+    amount: {
+        type: Number,
+        default: 0
+    },
+    razorpayOrderId: {
+        type: String
+    },
+    razorpayPaymentId: {
+        type: String
+    },
+    razorpayRefundId: {
+        type: String
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

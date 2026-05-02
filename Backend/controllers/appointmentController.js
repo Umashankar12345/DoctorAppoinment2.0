@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Appointment = require('../models/appointmentModel');
+const Razorpay = require('razorpay');
 
 // @desc    Book an appointment
 // @route   POST /api/appointments
@@ -89,6 +90,29 @@ const updateAppointmentStatus = asyncHandler(async (req, res) => {
     const updateData = { ...req.body };
     if (updateData.status === 'cancelled') {
         updateData.isActive = false;
+
+        // Process refund if payment was already captured
+        if (appointment.paymentStatus === 'paid' && appointment.razorpayPaymentId) {
+            try {
+                const instance = new Razorpay({
+                    key_id: process.env.RAZORPAY_KEY_ID,
+                    key_secret: process.env.RAZORPAY_KEY_SECRET,
+                });
+
+                const refund = await instance.payments.refund(appointment.razorpayPaymentId, {
+                    "speed": "optimum"
+                });
+
+                if (refund) {
+                    updateData.paymentStatus = 'refunded';
+                    updateData.razorpayRefundId = refund.id;
+                }
+            } catch (error) {
+                console.error("Refund failed:", error);
+                // Depending on business logic, we could block cancellation if refund fails, 
+                // but usually we proceed and flag it for manual review.
+            }
+        }
     }
 
     const updatedAppointment = await Appointment.findByIdAndUpdate(
