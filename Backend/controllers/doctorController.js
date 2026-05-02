@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
+const Appointment = require('../models/appointmentModel');
 
 // @desc    Search doctors with filters (state, district, specialization, name, language, mode, rating, fees, sort)
 // @route   GET /api/doctors/search
@@ -203,6 +204,55 @@ const getDoctorStats = asyncHandler(async (req, res) => {
     });
 });
 
+// @desc    Add review for a doctor
+// @route   POST /api/doctors/:id/reviews
+// @access  Private (Patient)
+const addDoctorReview = asyncHandler(async (req, res) => {
+    const { rating, comment } = req.body;
+    const doctorId = req.params.id;
+    const userId = req.user.id; // From auth middleware
+
+    // 1. VERIFIED PATIENT CONSTRAINT
+    // Check if this patient has at least one 'completed' appointment with this doctor
+    const completedAppointment = await Appointment.findOne({
+        user: userId,
+        doctor: doctorId,
+        status: 'completed'
+    });
+
+    if (!completedAppointment) {
+        res.status(403);
+        throw new Error('You can only review a doctor after completing an appointment with them.');
+    }
+
+    const doctor = await User.findById(doctorId);
+
+    if (!doctor || doctor.role !== 'doctor') {
+        res.status(404);
+        throw new Error('Doctor not found');
+    }
+
+    // 2. Prevent duplicate reviews from the same patient (optional but good practice)
+    // For now we allow multiple, or check if already reviewed:
+    // const alreadyReviewed = doctor.reviews.find(r => r.user.toString() === userId.toString());
+    
+    const review = {
+        userName: req.user.name,
+        rating: Number(rating),
+        comment,
+    };
+
+    doctor.reviews.push(review);
+
+    // Calculate new average rating
+    const numReviews = doctor.reviews.length;
+    doctor.rating = doctor.reviews.reduce((acc, item) => item.rating + acc, 0) / numReviews;
+
+    await doctor.save();
+
+    res.status(201).json({ message: 'Review added successfully' });
+});
+
 module.exports = {
     searchDoctors,
     getTopDoctors,
@@ -210,4 +260,5 @@ module.exports = {
     getNearbyDoctors,
     getDoctorById,
     getDoctorStats,
+    addDoctorReview,
 };
