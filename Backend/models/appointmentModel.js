@@ -42,4 +42,12 @@ const appointmentSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+// Prevent double booking for the same doctor, date, and time slot
+// We use a partialFilterExpression so that if an appointment is 'cancelled', 
+// the slot becomes available again for others to book.
+appointmentSchema.index(
+    { doctor: 1, date: 1, timeSlot: 1 },
+    { unique: true, partialFilterExpression: { status: { $ne: 'cancelled' } } }
+);
+
 module.exports = mongoose.model('Appointment', appointmentSchema);
