@@ -67,6 +67,7 @@ const appointmentSchema = new mongoose.Schema({
 // Prevent double booking for the same doctor, date, and time slot
 // We use a partialFilterExpression so that if an appointment is 'cancelled', 
 // isActive becomes false, and the slot becomes available again for others to book.
+// Note: We avoid using $ne because it is not supported in MongoDB partial indexes.
 appointmentSchema.index(
     { doctor: 1, date: 1, timeSlot: 1 },
     { unique: true, partialFilterExpression: { isActive: true } }
